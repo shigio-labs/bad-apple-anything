@@ -78,9 +78,9 @@ class BadAppleGui:
         self.fill_gamma_var = StringVar(value="")
         self.crf_var = StringVar(value="18")
         self.preset_var = StringVar(value="medium")
-        self.status_var = StringVar(value="Готов к рендеру")
+        self.status_var = StringVar(value="Ready to render")
         self.progress_text_var = StringVar(value="0%")
-        self.detail_var = StringVar(value="Выбери силуэт (Bad Apple) и любое видео, затем жми Render.")
+        self.detail_var = StringVar(value="Pick a silhouette (Bad Apple) and any video, then hit Render.")
 
     def _setup_style(self) -> None:
         self.colors = {
@@ -125,42 +125,42 @@ class BadAppleGui:
         header.grid(row=0, column=0, sticky="ew", pady=(0, 14))
         header.columnconfigure(0, weight=1)
         ttk.Label(header, text="Bad Apple Anything", style="Header.TLabel").grid(row=0, column=0, sticky="w")
-        ttk.Label(header, text="Любое видео внутри силуэта Bad Apple.", style="Subtle.TLabel").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        ttk.Label(header, text="Any video inside a Bad Apple silhouette.", style="Subtle.TLabel").grid(row=1, column=0, sticky="w", pady=(4, 0))
         ttk.Button(header, text="README", style="Tool.TButton", command=self._open_readme).grid(row=0, column=1, sticky="e")
 
-        files = self._panel(root, 1, "Файлы")
-        self._path_row(files, 1, "Силуэт (Bad Apple)", self.silhouette_var, self._choose_silhouette)
-        ttk.Label(files, text="ЧБ клип-трафарет. Можно вставить YouTube/http ссылку.", style="Muted.TLabel").grid(row=2, column=1, sticky="w", pady=(2, 8))
-        self._path_row(files, 3, "Видео", self.video_var, self._choose_video)
-        ttk.Label(files, text="Любое видео, которое будет видно внутри силуэта.", style="Muted.TLabel").grid(row=4, column=1, sticky="w", pady=(2, 8))
-        self._path_row(files, 5, "Выход (.mp4)", self.output_var, self._choose_output)
+        files = self._panel(root, 1, "Files")
+        self._path_row(files, 1, "Silhouette (Bad Apple)", self.silhouette_var, self._choose_silhouette)
+        ttk.Label(files, text="Black/white stencil clip. You can paste a YouTube/http link.", style="Muted.TLabel").grid(row=2, column=1, sticky="w", pady=(2, 8))
+        self._path_row(files, 3, "Video", self.video_var, self._choose_video)
+        ttk.Label(files, text="Any video to reveal inside the silhouette.", style="Muted.TLabel").grid(row=4, column=1, sticky="w", pady=(2, 8))
+        self._path_row(files, 5, "Output (.mp4)", self.output_var, self._choose_output)
 
-        settings = self._panel(root, 2, "Настройки")
-        self._combo_row(settings, 1, 0, "Разрешение", self.resolution_var, ["640x360", "854x480", "1280x720", "1920x1080", "3840x2160"])
+        settings = self._panel(root, 2, "Settings")
+        self._combo_row(settings, 1, 0, "Resolution", self.resolution_var, ["640x360", "854x480", "1280x720", "1920x1080", "3840x2160"])
         self._entry_row(settings, 1, 2, "FPS", self.fps_var)
         self._combo_row(settings, 2, 0, "Blend", self.blend_var, ["mask", "multiply"])
-        self._entry_row(settings, 2, 2, "Фон", self.background_var)
-        self._combo_row(settings, 3, 0, "Силуэт fit", self.fit_var, ["contain", "stretch"])
-        self._combo_row(settings, 3, 2, "Видео fit", self.fill_fit_var, ["cover", "contain", "stretch"])
-        self._entry_row(settings, 4, 0, "Яркость (gamma)", self.fill_gamma_var)
+        self._entry_row(settings, 2, 2, "Background", self.background_var)
+        self._combo_row(settings, 3, 0, "Silhouette fit", self.fit_var, ["contain", "stretch"])
+        self._combo_row(settings, 3, 2, "Video fit", self.fill_fit_var, ["cover", "contain", "stretch"])
+        self._entry_row(settings, 4, 0, "Brightness (gamma)", self.fill_gamma_var)
         self._entry_row(settings, 4, 2, "Threshold", self.threshold_var)
         self._entry_row(settings, 5, 0, "CRF", self.crf_var)
         self._combo_row(settings, 5, 2, "Preset", self.preset_var, ["veryfast", "faster", "fast", "medium", "slow"])
-        self._entry_row(settings, 6, 0, "Max frames (тест)", self.max_frames_var)
+        self._entry_row(settings, 6, 0, "Max frames (test)", self.max_frames_var)
 
         checks = ttk.Frame(settings, style="Panel.TFrame")
         checks.grid(row=7, column=0, columnspan=4, sticky="ew", pady=(8, 0))
         for idx, (text, var) in enumerate(
             [
-                ("Звук", self.audio_var),
+                ("Audio", self.audio_var),
                 ("Auto threshold", self.auto_threshold_var),
-                ("Инвертировать", self.invert_mask_var),
+                ("Invert", self.invert_mask_var),
                 ("Antialias", self.antialias_var),
             ]
         ):
             ttk.Checkbutton(checks, text=text, variable=var).grid(row=0, column=idx, sticky="w", padx=(0, 14))
 
-        self._build_progress_panel(self._panel(root, 3, "Прогресс"))
+        self._build_progress_panel(self._panel(root, 3, "Progress"))
 
     def _panel(self, parent: ttk.Frame, row: int, title: str) -> ttk.Frame:
         frame = ttk.Frame(parent, style="Panel.TFrame", padding=14)
@@ -180,7 +180,7 @@ class BadAppleGui:
         self.render_button.grid(row=0, column=0, sticky="w", padx=(0, 10))
         self.stop_button = ttk.Button(controls, text="Stop", style="Danger.TButton", command=self._stop_render, state="disabled")
         self.stop_button.grid(row=0, column=1, sticky="w", padx=(0, 10))
-        ttk.Button(controls, text="Папка вывода", style="Tool.TButton", command=self._open_output_folder).grid(row=0, column=2, sticky="w")
+        ttk.Button(controls, text="Output folder", style="Tool.TButton", command=self._open_output_folder).grid(row=0, column=2, sticky="w")
         ttk.Label(controls, textvariable=self.status_var, style="Muted.TLabel").grid(row=0, column=3, sticky="e")
 
         bar = ttk.Frame(frame, style="Panel.TFrame")
@@ -193,12 +193,12 @@ class BadAppleGui:
 
         self.log = Text(frame, height=8, bg=self.colors["field"], fg=self.colors["text"], insertbackground=self.colors["text"], relief="flat", wrap="word", font=("Cascadia Mono", 9))
         self.log.grid(row=4, column=0, columnspan=4, sticky="nsew", pady=(8, 0))
-        self._log("GUI готов. Заполни поля и запускай рендер.")
+        self._log("GUI ready. Fill in the fields and start rendering.")
 
     def _path_row(self, frame: ttk.Frame, row: int, label: str, var: StringVar, command) -> None:
         ttk.Label(frame, text=label, style="Panel.TLabel").grid(row=row, column=0, sticky="w", padx=(0, 10), pady=4)
         ttk.Entry(frame, textvariable=var).grid(row=row, column=1, columnspan=2, sticky="ew", pady=4)
-        ttk.Button(frame, text="Выбрать", style="Tool.TButton", command=command).grid(row=row, column=3, sticky="e", padx=(8, 0), pady=4)
+        ttk.Button(frame, text="Browse", style="Tool.TButton", command=command).grid(row=row, column=3, sticky="e", padx=(8, 0), pady=4)
 
     def _entry_row(self, frame: ttk.Frame, row: int, column: int, label: str, var: StringVar) -> None:
         ttk.Label(frame, text=label, style="Panel.TLabel").grid(row=row, column=column, sticky="w", padx=(0, 8), pady=4)
@@ -209,17 +209,17 @@ class BadAppleGui:
         ttk.Combobox(frame, textvariable=var, values=values, state="normal", width=12).grid(row=row, column=column + 1, sticky="ew", pady=4)
 
     def _choose_silhouette(self) -> None:
-        path = filedialog.askopenfilename(title="Выбери силуэт-клип (Bad Apple)", filetypes=VIDEO_FILETYPES)
+        path = filedialog.askopenfilename(title="Pick a silhouette clip (Bad Apple)", filetypes=VIDEO_FILETYPES)
         if path:
             self.silhouette_var.set(path)
 
     def _choose_video(self) -> None:
-        path = filedialog.askopenfilename(title="Выбери любое видео", filetypes=VIDEO_FILETYPES)
+        path = filedialog.askopenfilename(title="Pick any video", filetypes=VIDEO_FILETYPES)
         if path:
             self.video_var.set(path)
 
     def _choose_output(self) -> None:
-        path = filedialog.asksaveasfilename(title="Куда сохранить результат", defaultextension=".mp4", filetypes=[("MP4 video", "*.mp4"), ("All files", "*.*")])
+        path = filedialog.asksaveasfilename(title="Save result as", defaultextension=".mp4", filetypes=[("MP4 video", "*.mp4"), ("All files", "*.*")])
         if path:
             self.output_var.set(path)
 
@@ -229,10 +229,10 @@ class BadAppleGui:
         self.stop_event.clear()
         self.progress.configure(value=0)
         self.progress_text_var.set("0%")
-        self.status_var.set("Подготовка...")
+        self.status_var.set("Preparing...")
         self.started_at = time.monotonic()
         self._set_running(True)
-        self._log("Старт рендера.")
+        self._log("Render started.")
         self.worker = threading.Thread(target=self._render_worker, daemon=True)
         self.worker.start()
 
@@ -243,13 +243,13 @@ class BadAppleGui:
                 silhouette_text = self.silhouette_var.get().strip()
                 video_text = self.video_var.get().strip()
                 if not silhouette_text:
-                    raise ValueError("Не выбран силуэт: укажи Bad Apple/ЧБ-клип или URL.")
+                    raise ValueError("No silhouette selected: choose a Bad Apple / black-white clip or URL.")
                 if not video_text:
-                    raise ValueError("Не выбрано видео: укажи любой видеофайл или URL.")
+                    raise ValueError("No video selected: choose any video file or URL.")
 
                 output_path = Path(self.output_var.get().strip() or "outputs/bad_apple_anything.mp4").expanduser().resolve()
                 download_dir = output_path.parent / "downloads"
-                self.events.put(("status", "Открываю источники..."))
+                self.events.put(("status", "Opening inputs..."))
                 silhouette_path = resolve_source(silhouette_text, download_dir=download_dir)
                 video_path = resolve_source(video_text, download_dir=download_dir)
 
@@ -284,7 +284,7 @@ class BadAppleGui:
                 self.last_output = Path(result)
                 self.events.put(("done", str(result)))
         except RenderCancelled:
-            self.events.put(("cancelled", "Рендер остановлен. Частичный файл можно перезаписать следующим запуском."))
+            self.events.put(("cancelled", "Render stopped. The partial file can be overwritten on the next run."))
         except Exception:
             self.events.put(("error", traceback.format_exc()))
 
@@ -307,19 +307,19 @@ class BadAppleGui:
                 elif kind == "done":
                     self.progress.configure(value=100)
                     self.progress_text_var.set("100%")
-                    self.status_var.set("Готово")
-                    self._log(f"Готово: {payload}")
+                    self.status_var.set("Done")
+                    self._log(f"Done: {payload}")
                     self._set_running(False)
-                    messagebox.showinfo("Bad Apple Anything", f"Рендер готов:\n{payload}")
+                    messagebox.showinfo("Bad Apple Anything", f"Render ready:\n{payload}")
                 elif kind == "cancelled":
-                    self.status_var.set("Остановлено")
+                    self.status_var.set("Stopped")
                     self._log(str(payload))
                     self._set_running(False)
                 elif kind == "error":
-                    self.status_var.set("Ошибка")
+                    self.status_var.set("Error")
                     self._log(str(payload))
                     self._set_running(False)
-                    messagebox.showerror("Ошибка рендера", self._short_error(str(payload)))
+                    messagebox.showerror("Render error", self._short_error(str(payload)))
         except queue.Empty:
             pass
         self.root.after(100, self._drain_events)
@@ -333,7 +333,7 @@ class BadAppleGui:
         self.progress.configure(value=percent)
         self.progress_text_var.set(f"{percent:5.1f}%")
         self.status_var.set(f"{stage}: {current}/{total}")
-        self.detail_var.set(f"Кадры: {current}/{total} | Скорость: {fps:.1f} fps | ETA: {self._format_seconds(eta)}")
+        self.detail_var.set(f"Frames: {current}/{total} | Speed: {fps:.1f} fps | ETA: {self._format_seconds(eta)}")
 
     def _set_running(self, running: bool) -> None:
         self.render_button.configure(state="disabled" if running else "normal")
@@ -342,8 +342,8 @@ class BadAppleGui:
     def _stop_render(self) -> None:
         if self.worker and self.worker.is_alive():
             self.stop_event.set()
-            self.status_var.set("Останавливаю...")
-            self._log("Запрошена остановка. Дождись закрытия ffmpeg-потока.")
+            self.status_var.set("Stopping...")
+            self._log("Stop requested. Wait for the ffmpeg stream to close.")
 
     def _open_output_folder(self) -> None:
         raw = self.output_var.get().strip()
