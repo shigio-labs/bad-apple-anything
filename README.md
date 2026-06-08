@@ -10,12 +10,26 @@ Pure Python + ffmpeg. CPU only, no GPU or model downloads.
 
 ## How it works
 
-1. The **silhouette** clip is thresholded into a clean black/white mask per frame
-   (with a feathered, anti-aliased edge).
-2. The **video** is sampled on the output timeline (real playback speed, seamless loop)
-   and resized without distortion.
-3. The two are composited: the video shows where the silhouette is white, the background
-   color shows everywhere else. The silhouette clip's audio is muxed into the result.
+The **silhouette** clip is the stencil (and the soundtrack); your **video** is the fill.
+For every output frame:
+
+```
+ silhouette clip ──► [mask: B/W → alpha]  ──┐
+                                            ├─► [composite: video·α + bg·(1−α)] ──► ffmpeg ──► out.mp4
+ your video ──────► [frame at timestamp] ──┘                                          ▲
+ silhouette clip ───────────────────────────────── audio (AAC) ───────────────────────┘
+```
+
+1. **Mask** — each silhouette frame is resized (aspect-preserving), thresholded to clean
+   black/white, denoised, and given a feathered edge → a per-pixel `alpha` in `[0, 1]`.
+2. **Fill** — the video frame is picked by *wall-clock time* (`int(t × video_fps)`), so it
+   plays at **real speed** and loops seamlessly when shorter than the song. No stretching.
+3. **Composite** — `out = video·alpha + background·(1 − alpha)`: the video shows where the
+   silhouette is white, the background color elsewhere, with an anti-aliased edge. The
+   silhouette clip's audio is muxed in.
+
+The silhouette sets the total length; the video is fitted into it. Want the full breakdown
+(modules, the two resamplings, extension points)? See **[ARCHITECTURE.md](ARCHITECTURE.md)**.
 
 ## Install
 
@@ -86,6 +100,30 @@ python main.py --silhouette bad_apple.mp4 --video doom_gameplay.mp4 \
 | `--no-antialias` | off | Hard mask edge instead of a feathered one. |
 | `--crf` / `--preset` | `18` / `medium` | libx264 quality / speed. |
 | `--max-frames` | off | Render only the first N frames (for tests). |
+
+### Recipes
+
+```bash
+# DOOM inside Bad Apple, smooth 1080p60 with the song
+python main.py --silhouette bad_apple.mp4 --video doom.mp4 \
+  --output outputs/doom.mp4 --resolution 1920x1080 --fps 60
+
+# Dark footage? Lift it so it reads inside thin strokes
+python main.py --silhouette bad_apple.mp4 --video gameplay.mp4 \
+  --output outputs/lit.mp4 --fill-gamma 0.85
+
+# Invert: show the video in the BLACK areas instead
+python main.py --silhouette bad_apple.mp4 --video clip.mp4 \
+  --output outputs/inverted.mp4 --invert-mask
+
+# Ghostly look: video stays faintly visible outside the silhouette
+python main.py --silhouette bad_apple.mp4 --video clip.mp4 \
+  --output outputs/ghost.mp4 --blend multiply
+
+# Pull either input straight from a URL (downloaded with yt-dlp)
+python main.py --silhouette "https://youtu.be/FtutLA63Cp8" \
+  --video your_clip.mp4 --output outputs/fromurl.mp4
+```
 
 ## Desktop GUI
 
